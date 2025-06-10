@@ -89,9 +89,12 @@ function TaskbarButton({ windows, icon, isActive, appName, onLeftClick, onRightC
           variant="ghost"
           size="icon"
           className={cn(
-            'h-11 w-11 relative transition-all duration-200',
+            'h-11 w-11 relative transition-all duration-200 overflow-hidden',
             'hover:bg-white/15 hover:backdrop-blur-xl',
-            isActive && 'bg-white/10 backdrop-blur-xl',
+            'before:absolute before:inset-0 before:opacity-0 hover:before:opacity-10',
+            'before:bg-gradient-to-br before:from-[var(--primary-accent)] before:to-[var(--secondary-accent)]',
+            'before:transition-opacity before:duration-300',
+            isActive && 'bg-white/10 backdrop-blur-xl before:opacity-5',
             windows.length === 0 && 'opacity-80'
           )}
           onClick={onLeftClick}
@@ -113,9 +116,13 @@ function TaskbarButton({ windows, icon, isActive, appName, onLeftClick, onRightC
                   className={cn(
                     'h-0.5 rounded-full transition-all duration-300',
                     isActive 
-                      ? 'w-3.5 bg-[var(--system-accent)] shadow-sm shadow-[var(--system-accent)]' 
+                      ? 'w-3.5' 
                       : 'w-2 bg-foreground/40'
                   )}
+                  style={isActive ? {
+                    background: 'linear-gradient(to right, var(--primary-accent), var(--secondary-accent))',
+                    boxShadow: '0 0 4px var(--primary-accent)'
+                  } : undefined}
                 />
               ))}
             </div>
@@ -409,7 +416,16 @@ export function Taskbar() {
 
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 h-12 taskbar-glass flex items-center px-3 gap-2">
+      <motion.div 
+        initial={{ y: 48, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ 
+          duration: 0.6,
+          delay: 0.4,
+          ease: [0.22, 0.61, 0.36, 1],
+        }}
+        className="fixed bottom-0 left-0 right-0 h-12 taskbar-glass flex items-center px-3 gap-2"
+      >
         {/* Start Button */}
         <SystemTrayTooltip content="Start">
           <motion.div 
@@ -539,7 +555,7 @@ export function Taskbar() {
             </div>
           </Button>
         </SystemTrayTooltip>
-      </div>
+      </motion.div>
       
       {/* System Tray Popup */}
       <AnimatePresence>
@@ -688,7 +704,7 @@ export function Taskbar() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={handleSearch}
-                      className="glass border-white/20 focus:border-[var(--system-accent)]"
+                      className="glass border-white/20 focus:border-[var(--primary-accent)]"
                       autoFocus
                     />
                   </div>
@@ -773,7 +789,7 @@ export function Taskbar() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleSearch}
-                  className="text-lg glass border-white/20 focus:border-[var(--system-accent)] mb-4"
+                  className="text-lg glass border-white/20 focus:border-[var(--primary-accent)] mb-4"
                   autoFocus
                 />
                 

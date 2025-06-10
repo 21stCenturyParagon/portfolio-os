@@ -21,7 +21,7 @@ const appComponents = {
   terminal: dynamic(() => import('@/components/apps/terminal-app'), {
     loading: () => <AppLoading />,
   }),
-  settings: dynamic(() => import('@/components/apps/settings').then(mod => ({ default: mod.Settings })), {
+  settings: dynamic(() => import('@/components/apps/settings'), {
     loading: () => <AppLoading />,
   }),
 };
@@ -29,7 +29,7 @@ const appComponents = {
 function AppLoading() {
   return (
     <div className="flex items-center justify-center h-full">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/50"></div>
     </div>
   );
 }

@@ -1,12 +1,11 @@
 import { create } from 'zustand';
 import { Window, DesktopIcon, SystemNotification, SystemState } from '@/types/os';
 
-interface GradientPreset {
+interface ColorPreset {
   id: string;
   name: string;
-  from: string;
-  to: string;
-  direction: string;
+  primary: string;
+  secondary: string;
 }
 
 interface OSStore {
@@ -24,9 +23,11 @@ interface OSStore {
   systemState: SystemState;
   notifications: SystemNotification[];
   bootState: 'booting' | 'running' | 'shutting-down' | 'off';
-  accentHue: number;
-  gradientPreset: string;
-  customGradient: { from: string; to: string; direction: string };
+  
+  // Theme colors
+  colorPreset: string;
+  primaryAccent: string;
+  secondaryAccent: string;
   
   // Window actions
   openWindow: (window: Omit<Window, 'id' | 'zIndex' | 'isActive'>) => void;
@@ -51,9 +52,11 @@ interface OSStore {
   toggleWifi: () => void;
   toggleBluetooth: () => void;
   setBootState: (state: 'booting' | 'running' | 'shutting-down' | 'off') => void;
-  setAccentHue: (hue: number) => void;
-  setGradientPreset: (presetId: string) => void;
-  setCustomGradient: (gradient: { from: string; to: string; direction: string }) => void;
+  
+  // Theme actions
+  setColorPreset: (presetId: string) => void;
+  setPrimaryAccent: (color: string) => void;
+  setSecondaryAccent: (color: string) => void;
   getGradientStyle: () => string;
   
   // Notification actions
@@ -62,17 +65,17 @@ interface OSStore {
   clearNotifications: () => void;
 }
 
-export const gradientPresets: GradientPreset[] = [
-  { id: 'ocean', name: 'Ocean', from: '#2E3192', to: '#1BFFFF', direction: 'to bottom right' },
-  { id: 'sunset', name: 'Sunset', from: '#F83600', to: '#F9D423', direction: 'to bottom right' },
-  { id: 'forest', name: 'Forest', from: '#134E5E', to: '#71B280', direction: 'to bottom right' },
-  { id: 'lavender', name: 'Lavender', from: '#667eea', to: '#764ba2', direction: 'to bottom right' },
-  { id: 'fire', name: 'Fire', from: '#f12711', to: '#f5af19', direction: 'to bottom right' },
-  { id: 'midnight', name: 'Midnight', from: '#0f0c29', to: '#302b63', direction: 'to bottom right' },
-  { id: 'aurora', name: 'Aurora', from: '#00F260', to: '#0575E6', direction: 'to bottom right' },
-  { id: 'rose', name: 'Rose', from: '#ED213A', to: '#93291E', direction: 'to bottom right' },
-  { id: 'default', name: 'Default Blue', from: '#1e3a8a', to: '#7c3aed', direction: 'to bottom right' },
-  { id: 'custom', name: 'Custom', from: '#000000', to: '#ffffff', direction: 'to bottom right' },
+export const colorPresets: ColorPreset[] = [
+  { id: 'ocean', name: 'Ocean', primary: '#2E3192', secondary: '#1BFFFF' },
+  { id: 'sunset', name: 'Sunset', primary: '#F83600', secondary: '#F9D423' },
+  { id: 'forest', name: 'Forest', primary: '#134E5E', secondary: '#71B280' },
+  { id: 'lavender', name: 'Lavender', primary: '#667eea', secondary: '#764ba2' },
+  { id: 'fire', name: 'Fire', primary: '#f12711', secondary: '#f5af19' },
+  { id: 'midnight', name: 'Midnight', primary: '#0f0c29', secondary: '#302b63' },
+  { id: 'aurora', name: 'Aurora', primary: '#00F260', secondary: '#0575E6' },
+  { id: 'rose', name: 'Rose', primary: '#ED213A', secondary: '#93291E' },
+  { id: 'default', name: 'Default Blue', primary: '#1e3a8a', secondary: '#7c3aed' },
+  { id: 'custom', name: 'Custom', primary: '#1e3a8a', secondary: '#7c3aed' },
 ];
 
 export const useOSStore = create<OSStore>((set, get) => ({
@@ -104,9 +107,11 @@ export const useOSStore = create<OSStore>((set, get) => ({
   
   notifications: [],
   bootState: 'booting',
-  accentHue: 220, // Default blue
-  gradientPreset: 'default',
-  customGradient: { from: '#1e3a8a', to: '#7c3aed', direction: 'to bottom right' },
+  
+  // Theme colors
+  colorPreset: 'default',
+  primaryAccent: '#1e3a8a',
+  secondaryAccent: '#7c3aed',
   
   // Window actions
   openWindow: (windowData) => {
@@ -301,44 +306,56 @@ export const useOSStore = create<OSStore>((set, get) => ({
     set({ bootState });
   },
   
-  setAccentHue: (hue) => {
-    set({ accentHue: hue });
-    document.documentElement.style.setProperty('--accent-hue', hue.toString());
-    document.documentElement.setAttribute('data-accent-hue', hue.toString());
-  },
-  
-  setGradientPreset: (presetId) => {
-    const preset = gradientPresets.find(p => p.id === presetId);
-    if (preset && presetId !== 'custom') {
+  // Theme actions
+  setColorPreset: (presetId) => {
+    const preset = colorPresets.find(p => p.id === presetId);
+    if (preset) {
       set({ 
-        gradientPreset: presetId,
-        customGradient: {
-          from: preset.from,
-          to: preset.to,
-          direction: preset.direction
-        }
+        colorPreset: presetId,
+        primaryAccent: preset.primary,
+        secondaryAccent: preset.secondary
       });
-    } else {
-      set({ gradientPreset: presetId });
+      
+      // Update CSS variables
+      document.documentElement.style.setProperty('--primary-accent', preset.primary);
+      document.documentElement.style.setProperty('--secondary-accent', preset.secondary);
+      
+      // Persist to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('color-preset', presetId);
+        localStorage.setItem('primary-accent', preset.primary);
+        localStorage.setItem('secondary-accent', preset.secondary);
+      }
     }
   },
   
-  setCustomGradient: (gradient) => {
+  setPrimaryAccent: (color) => {
     set({ 
-      customGradient: gradient,
-      gradientPreset: 'custom'
+      primaryAccent: color,
+      colorPreset: 'custom'
     });
+    document.documentElement.style.setProperty('--primary-accent', color);
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('primary-accent', color);
+    }
+  },
+  
+  setSecondaryAccent: (color) => {
+    set({ 
+      secondaryAccent: color,
+      colorPreset: 'custom'
+    });
+    document.documentElement.style.setProperty('--secondary-accent', color);
+    // Persist to localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('secondary-accent', color);
+    }
   },
   
   getGradientStyle: () => {
-    const { gradientPreset, customGradient } = get();
-    const preset = gradientPresets.find(p => p.id === gradientPreset);
-    
-    if (preset && gradientPreset !== 'custom') {
-      return `linear-gradient(${preset.direction}, ${preset.from}, ${preset.to})`;
-    }
-    
-    return `linear-gradient(${customGradient.direction}, ${customGradient.from}, ${customGradient.to})`;
+    const { primaryAccent, secondaryAccent } = get();
+    return `linear-gradient(to bottom right, ${primaryAccent}, ${secondaryAccent})`;
   },
   
   // Notification actions

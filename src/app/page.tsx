@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { Desktop } from '@/components/desktop/desktop';
 import { Taskbar } from '@/components/taskbar/taskbar';
 import { Window } from '@/components/os/window';
@@ -29,7 +29,7 @@ export default function Page() {
             type: 'info',
           });
           localStorage.setItem('hasShownWelcome', 'true');
-        }, 1000);
+        }, 2000); // Increased delay to allow for desktop animation
       }
     }
   }, [bootState, addNotification]);
@@ -58,28 +58,30 @@ export default function Page() {
       <BootScreen />
       
       {/* OS Interface */}
-      {bootState === 'running' && (
-        <>
-          {/* Desktop */}
-          <Desktop />
-          
-          {/* Windows Container - positioned relative for absolute children */}
-          <div className="absolute inset-0 pointer-events-none">
-            <AnimatePresence>
-              {windows.map((window) => (
-                <div key={window.id} className="pointer-events-auto">
-                  <Window window={window}>
-                    <AppRenderer componentName={window.component} />
-                  </Window>
-                </div>
-              ))}
-            </AnimatePresence>
-          </div>
-          
-          {/* Taskbar */}
-          <Taskbar />
-        </>
-      )}
+      <AnimatePresence>
+        {bootState === 'running' && (
+          <>
+            {/* Desktop */}
+            <Desktop />
+            
+            {/* Windows Container */}
+            <div className="absolute inset-0 pointer-events-none">
+              <AnimatePresence>
+                {windows.map((window) => (
+                  <div key={window.id} className="pointer-events-auto">
+                    <Window window={window}>
+                      <AppRenderer componentName={window.component} />
+                    </Window>
+                  </div>
+                ))}
+              </AnimatePresence>
+            </div>
+            
+            {/* Taskbar */}
+            <Taskbar />
+          </>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

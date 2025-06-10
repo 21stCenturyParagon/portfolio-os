@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
+import { motion } from 'framer-motion';
 import { useOSStore } from '@/lib/stores/os-store';
 import { DesktopIcon } from './desktop-icon';
 import { ContextMenu, ContextMenuItem, useContextMenu } from '@/components/os/context-menu';
@@ -98,7 +99,10 @@ export function Desktop() {
   };
   
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1, ease: "easeOut" }}
       className="relative w-full h-full overflow-hidden no-context-menu"
       onContextMenu={handleDesktopRightClick}
       style={{
@@ -109,15 +113,29 @@ export function Desktop() {
     >
       {/* Gradient background when no image is set */}
       {!backgroundImage && (
-        <div 
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
           className="absolute inset-0" 
           style={{ background: getGradientStyle() }}
         />
       )}
       
-      {/* Icons */}
-      {desktopIcons.map((icon) => (
-        <DesktopIcon key={icon.id} icon={icon} />
+      {/* Icons with staggered entrance animation */}
+      {desktopIcons.map((icon, index) => (
+        <motion.div
+          key={icon.id}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.4,
+            delay: 0.6 + (index * 0.05), // Stagger each icon
+            ease: [0.22, 0.61, 0.36, 1],
+          }}
+        >
+          <DesktopIcon icon={icon} />
+        </motion.div>
       ))}
       
       {/* Hidden file input for background upload */}
@@ -139,6 +157,6 @@ export function Desktop() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 } 
