@@ -1,0 +1,60 @@
+import { App } from '@/types/os';
+
+export const appRegistry: Record<string, App> = {
+  about: {
+    id: 'about',
+    title: 'About Me',
+    icon: 'User',
+    component: 'AboutApp',
+    defaultSize: { width: 600, height: 500 },
+    minSize: { width: 400, height: 300 },
+  },
+  projects: {
+    id: 'projects',
+    title: 'Projects',
+    icon: 'FolderOpen',
+    component: 'ProjectsApp',
+    defaultSize: { width: 800, height: 600 },
+    minSize: { width: 600, height: 400 },
+  },
+  skills: {
+    id: 'skills',
+    title: 'Skills & Experience',
+    icon: 'FileText',
+    component: 'SkillsApp',
+    defaultSize: { width: 700, height: 500 },
+    minSize: { width: 500, height: 350 },
+  },
+  blog: {
+    id: 'blog',
+    title: 'Blog',
+    icon: 'BookOpen',
+    component: 'BlogApp',
+    defaultSize: { width: 800, height: 600 },
+    minSize: { width: 600, height: 400 },
+  },
+  contact: {
+    id: 'contact',
+    title: 'Contact',
+    icon: 'Mail',
+    component: 'ContactApp',
+    defaultSize: { width: 500, height: 400 },
+    minSize: { width: 400, height: 300 },
+  },
+  terminal: {
+    id: 'terminal',
+    title: 'Terminal',
+    icon: 'Terminal',
+    component: 'TerminalApp',
+    defaultSize: { width: 700, height: 400 },
+    minSize: { width: 500, height: 300 },
+  },
+  settings: {
+    id: 'settings',
+    title: 'Settings',
+    icon: 'Settings',
+    component: 'SettingsApp',
+    defaultSize: { width: 600, height: 500 },
+    minSize: { width: 500, height: 400 },
+  },
+}; 
